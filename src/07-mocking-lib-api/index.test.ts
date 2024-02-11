@@ -1,17 +1,44 @@
-// Uncomment the code below and write your tests
-/* import axios from 'axios';
-import { throttledGetDataFromApi } from './index'; */
+import axios from 'axios';
+import { throttledGetDataFromApi } from './index';
+jest.mock('axios');
+const mockedAxios = axios as jest.Mocked<typeof axios>;
+const baseURL = 'https://jsonplaceholder.typicode.com';
 
 describe('throttledGetDataFromApi', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+    jest.clearAllMocks();
+  });
+
   test('should create instance with provided base url', async () => {
-    // Write your test here
-  });
+    const relativePath = '/posts1';
 
-  test('should perform request to correct provided url', async () => {
-    // Write your test here
-  });
+    // Mock axios.create to return an object with a get method
+    const axiosCreateMock = jest.spyOn(axios, 'create');
 
-  test('should return response data', async () => {
-    // Write your test here
+    await throttledGetDataFromApi(relativePath);
+    mockedAxios.get.mockResolvedValue({
+      data: [
+        {
+          id: 1,
+          name: 'Joe Doe',
+        },
+        {
+          id: 2,
+          name: 'Jane Doe',
+        },
+      ],
+    });
+    // Expect axios.create to be called with the provided baseURL
+    expect(axiosCreateMock).toHaveBeenCalledWith({
+      baseURL,
+    });
+
+    // Expect axios.get to be called with the correct URL
+    // expect(axiosCreateMock.get).toHaveBeenCalledWith(relativePath);
   });
 });

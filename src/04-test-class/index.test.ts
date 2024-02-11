@@ -79,6 +79,8 @@ describe('BankAccount', () => {
   });
 
   test('should set new balance if fetchBalance returned number', async () => {
+    // TODO
+
     const actualBalance = account.getBalance();
     const fetchedBalance = await account.fetchBalance();
     const updatedBalance = account.getBalance();
@@ -91,10 +93,12 @@ describe('BankAccount', () => {
   });
 
   test('should throw SynchronizationFailedError if fetchBalance returned null', async () => {
+    // TODO
+
     const fetchedBalance = await account.fetchBalance();
 
     if (fetchedBalance === null) {
-      await expect(account.synchronizeBalance()).rejects.toThrowError(
+      await expect(account.synchronizeBalance()).rejects.toThrow(
         SynchronizationFailedError,
       );
     }

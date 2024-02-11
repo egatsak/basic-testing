@@ -1,24 +1,20 @@
 import axios from 'axios';
 import { throttledGetDataFromApi } from './index';
 
-// TODO resolve issue with clearing mocks!
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-let mockedAxios: jest.Mocked<typeof axios>;
+jest.mock('lodash', () => ({
+  throttle: (fn: () => unknown) => fn,
+}));
 
 const baseURL = 'https://jsonplaceholder.typicode.com';
 
 describe('throttledGetDataFromApi', () => {
-  beforeEach(() => {
+  beforeAll(() => {
     jest.useFakeTimers();
-    jest.resetAllMocks();
-    jest.clearAllMocks();
-    jest.restoreAllMocks();
-    jest.resetModules();
-
-    mockedAxios = axios as jest.Mocked<typeof axios>;
   });
 
-  afterEach(() => {
+  afterAll(() => {
     jest.useRealTimers();
   });
 
@@ -27,24 +23,16 @@ describe('throttledGetDataFromApi', () => {
 
     const axiosCreateMock = jest.spyOn(mockedAxios, 'create');
 
-    const mockedGet = jest
-      .spyOn(mockedAxios.Axios.prototype, 'get')
-      .mockResolvedValueOnce('foo');
+    jest.spyOn(mockedAxios.Axios.prototype, 'get').mockResolvedValueOnce('foo');
 
     await throttledGetDataFromApi(relativePath);
 
     expect(axiosCreateMock).toHaveBeenCalledWith({
       baseURL,
     });
-
-    axiosCreateMock.mockClear();
-    mockedGet.mockClear();
-    mockedGet.mockReset();
   });
 
   test('should perform request to correct provided url', async () => {
-    const mockedAxios = axios as jest.Mocked<typeof axios>;
-
     const relativePath = '/posts12345';
 
     const mockedGet = jest
@@ -54,13 +42,9 @@ describe('throttledGetDataFromApi', () => {
     await throttledGetDataFromApi(relativePath);
 
     expect(mockedGet).toHaveBeenLastCalledWith(relativePath);
-
-    mockedGet.mockClear();
   });
 
   test('should return response data', async () => {
-    const mockedAxios = axios as jest.Mocked<typeof axios>;
-
     const relativePath = Math.random().toFixed(8);
 
     interface Item {
